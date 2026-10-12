@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="weather-app">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fa-solid fa-cloud-sun"></i>
+            </div>
+            <div>
+                <h1>SkyCast</h1>
+                <p>Check the weather in your city</p>
+            </div>
+        </header>
+
+        <!-- City Search -->
+        <form class="search-form" id="searchForm">
+            <span class="search-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+
+            <input type="text" id="cityInput" placeholder="Enter city name (e.g. Lahore, Karachi...)"
+                aria-label="City name">
+
+            <button type="submit" id="searchBtn">Search</button>
+        </form>
+
+        <!-- Current Weather -->
+        <section class="weather-card">
+
+            <div class="weather-top">
+                <div>
+                    <h2 id="cityName">Lahore, Pakistan</h2>
+                    <p id="weatherCondition">Mostly Sunny</p>
+                </div>
+
+                <p class="date" id="date">Current Weather</p>
+            </div>
+
+            <div class="temperature-section">
+                <div class="weather-icon" id="weatherIcon">
+                    <i class="fa-solid fa-cloud-sun"></i>
+                </div>
+
+                <div>
+                    <h2 class="temperature">
+                        <span id="temperature">28</span><sup>°C</sup>
+                    </h2>
+                    <p class="feels-like">
+                        Feels like <span id="feelsLike">30</span>°C
+                    </p>
+                </div>
+            </div>
+
+            <!-- Weather Details -->
+            <div class="weather-details">
+
+                <div class="detail">
+                    <span class="detail-icon">
+                        <i class="fa-solid fa-droplet"></i>
+                    </span>
+                    <p>Humidity</p>
+                    <h3><span id="humidity">52</span>%</h3>
+                </div>
+
+                <div class="detail">
+                    <span class="detail-icon">
+                        <i class="fa-solid fa-wind"></i>
+                    </span>
+                    <p>Wind Speed</p>
+                    <h3><span id="windSpeed">12</span> km/h</h3>
+                </div>
+
+                <div class="detail">
+                    <span class="detail-icon">
+                        <i class="fa-solid fa-temperature-half"></i>
+                    </span>
+                    <p>Pressure</p>
+                    <h3><span id="pressure">1012</span> hPa</h3>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Five-Day Forecast: visual placeholder for now -->
+        <section class="forecast-section">
+            <div class="forecast-heading">
+                <h2>5-Day Forecast</h2>
+                <p>Coming soon</p>
+            </div>
+
+            <div class="forecast-list">
+
+                <div class="forecast-day">
+                    <p>Tue</p>
+                    <span>
+                        <i class="fa-solid fa-sun"></i>
+                    </span>
+                    <h3>32°</h3>
+                    <small>Sunny</small>
+                </div>
+
+                <div class="forecast-day">
+                    <p>Wed</p>
+                    <span>
+                        <i class="fa-solid fa-cloud-sun"></i>
+                    </span>
+                    <h3>31°</h3>
+                    <small>Partly cloudy</small>
+                </div>
+
+                <div class="forecast-day">
+                    <p>Thu</p>
+                    <span>
+                        <i class="fa-solid fa-cloud"></i>
+                    </span>
+                    <h3>29°</h3>
+                    <small>Cloudy</small>
+                </div>
+
+                <div class="forecast-day">
+                    <p>Fri</p>
+                    <span>
+                        <i class="fa-solid fa-sun"></i>
+                    </span>
+                    <h3>30°</h3>
+                    <small>Sunny</small>
+                </div>
+
+                <div class="forecast-day">
+                    <p>Sat</p>
+                    <span>
+                        <i class="fa-solid fa-cloud-rain"></i>
+                    </span>
+                    <h3>28°</h3>
+                    <small>Showers</small>
+                </div>
+
+            </div>
+        </section>
+
+        <p class="message" id="message" role="status"></p>
+
+    </main>
+
+</body>
+
+</html>

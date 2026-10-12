@@ -1,0 +1,472 @@
+/* ===== Basic Setup ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+  font-family: Arial, sans-serif;
+  color: #19365c;
+  background: linear-gradient(135deg, #b8dcff, #edf6ff, #d2e7ff);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 12px;
+}
+
+/* ===== Main App ===== */
+.weather-app {
+  width: 100%;
+  max-width: 900px;
+  padding: 18px;
+  border-radius: 22px;
+
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 12px 35px rgba(40, 90, 150, 0.12);
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.logo {
+  font-size: 38px;
+}
+
+.header h1 {
+  font-size: 25px;
+  margin-bottom: 4px;
+}
+
+.header p {
+  color: #617b9d;
+  font-size: 13px;
+}
+
+/* ===== Search Form ===== */
+.search-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: white;
+  border: 1px solid #c7ddff;
+  border-radius: 13px;
+  padding: 6px 7px 6px 13px;
+  margin-bottom: 14px;
+}
+
+.search-icon {
+  font-size: 23px;
+  color: #617b9d;
+}
+
+.search-form input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #19365c;
+  background: transparent;
+}
+
+.search-form input:focus {
+  outline: none;
+}
+
+.search-form button {
+  border: none;
+  border-radius: 10px;
+  background: #347ff0;
+  color: white;
+  padding: 11px 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-form button:hover {
+  background: #2368d5;
+}
+
+/* ===== Current Weather Card ===== */
+.weather-card {
+  padding: 18px;
+  border-radius: 18px;
+  color: white;
+  background: linear-gradient(135deg, #2678d8, #70b5ef);
+  margin-bottom: 14px;
+}
+
+.weather-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.weather-top h2 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.weather-top p {
+  font-size: 13px;
+}
+
+.date {
+  text-align: right;
+  opacity: 0.9;
+}
+
+/* ===== Temperature ===== */
+.temperature-section {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 12px 0 18px;
+}
+
+.weather-icon {
+  font-size: 62px;
+}
+
+.temperature {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.temperature sup {
+  font-size: 24px;
+  vertical-align: top;
+}
+
+.feels-like {
+  margin-top: 8px;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* ===== Weather Details ===== */
+.weather-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+
+  padding: 12px 6px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.detail {
+  text-align: center;
+  padding: 3px;
+  min-width: 0;
+}
+
+.detail-icon {
+  font-size: 20px;
+}
+
+.detail p {
+  font-size: 12px;
+  margin: 5px 0;
+  opacity: 0.9;
+}
+
+.detail h3 {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+/* ===== Forecast ===== */
+.forecast-section {
+  padding: 13px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.forecast-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 11px;
+}
+
+.forecast-heading h2 {
+  font-size: 16px;
+}
+
+.forecast-heading p {
+  font-size: 12px;
+  color: #617b9d;
+}
+
+.forecast-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.forecast-day {
+  text-align: center;
+  padding: 10px 4px;
+  border: 1px solid #d8e8ff;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.65);
+  min-width: 0;
+}
+
+.forecast-day p {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.forecast-day span {
+  display: block;
+  font-size: 25px;
+  margin: 7px 0;
+}
+
+.forecast-day h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.forecast-day small {
+  font-size: 10px;
+  color: #617b9d;
+}
+
+/* ===== JavaScript Messages ===== */
+.message {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 13px;
+  color: #19365c;
+}
+
+/* ===== Short Desktop Screens ===== */
+@media (min-width: 601px) and (max-height: 750px) {
+  body {
+    padding: 8px;
+  }
+
+  .weather-app {
+    padding: 12px;
+  }
+
+  .header {
+    margin-bottom: 9px;
+  }
+
+  .logo {
+    font-size: 32px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .search-form {
+    margin-bottom: 10px;
+  }
+
+  .weather-card {
+    padding: 13px 16px;
+    margin-bottom: 10px;
+  }
+
+  .temperature-section {
+    margin: 8px 0 12px;
+  }
+
+  .weather-icon {
+    font-size: 48px;
+  }
+
+  .temperature {
+    font-size: 46px;
+  }
+
+  .weather-details {
+    padding: 9px 5px;
+  }
+
+  .forecast-section {
+    padding: 10px;
+  }
+
+  .forecast-heading {
+    margin-bottom: 7px;
+  }
+
+  .forecast-day {
+    padding: 7px 3px;
+  }
+
+  .forecast-day span {
+    font-size: 21px;
+    margin: 5px 0;
+  }
+}
+
+/* ===== Mobile Layout ===== */
+@media (max-width: 600px) {
+  body {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .weather-app {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .header h1 {
+    font-size: 23px;
+  }
+
+  .search-form {
+    gap: 7px;
+    padding-left: 9px;
+  }
+
+  .search-form input {
+    font-size: 12px;
+  }
+
+  .search-form button {
+    padding: 11px 12px;
+  }
+
+  .weather-card {
+    padding: 14px;
+  }
+
+  .weather-top h2 {
+    font-size: 18px;
+  }
+
+  .weather-top p {
+    font-size: 12px;
+  }
+
+  .temperature-section {
+    gap: 10px;
+    margin: 16px 0 20px;
+  }
+
+  .weather-icon {
+    font-size: 49px;
+  }
+
+  .temperature {
+    font-size: 45px;
+  }
+
+  .temperature sup {
+    font-size: 20px;
+  }
+
+  .weather-details {
+    gap: 2px;
+    padding: 10px 2px;
+  }
+
+  .detail p {
+    font-size: 10px;
+  }
+
+  .detail h3 {
+    font-size: 11px;
+  }
+
+  .forecast-section {
+    padding: 9px;
+  }
+
+  .forecast-list {
+    gap: 4px;
+  }
+
+  .forecast-day {
+    padding: 9px 2px;
+  }
+
+  .forecast-day span {
+    font-size: 20px;
+  }
+
+  .forecast-day h3 {
+    font-size: 12px;
+  }
+
+  .forecast-day small {
+    font-size: 9px;
+  }
+}
+
+/* ===== Very Narrow Phones ===== */
+@media (max-width: 360px) {
+  .weather-app {
+    padding: 10px;
+  }
+
+  .weather-card {
+    padding: 11px;
+  }
+
+  .temperature {
+    font-size: 39px;
+  }
+
+  .weather-icon {
+    font-size: 42px;
+  }
+
+  .forecast-day small {
+    font-size: 8px;
+  }
+}
+
+.logo i {
+  color: #347ff0;
+}
+
+.search-icon i {
+  font-size: 20px;
+}
+
+.detail-icon i {
+  color: #ffffff;
+}
+
+.forecast-day .fa-sun {
+  color: #f5b82e;
+}
+
+.forecast-day .fa-cloud-sun {
+  color: #6ba5ef;
+}
+
+.forecast-day .fa-cloud {
+  color: #8ca6c5;
+}
+
+.forecast-day .fa-cloud-rain {
+  color: #347ff0;
+}
