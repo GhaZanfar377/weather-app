@@ -42,28 +42,34 @@ async function  getGeoCode(){
 // asynchronous function for getting the weather from latitude and longitude
 async function getWeather(info){
 
-    let latitude = info.latitude;
-    let longitude = info.longitude;
-    let weatherAPI = "https://api.open-meteo.com/v1/forecast?";
-    let weatherURL = weatherAPI.concat(
-                        "latitude=", latitude,
-                        "&longitude=", longitude,
-                        "&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,pressure_msl",
-                        "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
-                        "&timezone=auto",
-                        "&forecast_days=7"
-                    );
+    try{
+        let latitude = info.latitude;
+        let longitude = info.longitude;
+        let weatherAPI = "https://api.open-meteo.com/v1/forecast?";
+        let weatherURL = weatherAPI.concat(
+                            "latitude=", latitude,
+                            "&longitude=", longitude,
+                            "&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,pressure_msl",
+                            "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+                            "&timezone=auto",
+                            "&forecast_days=7"
+                        );
 
-    let weatherResponse = await fetch(weatherURL);
+        let weatherResponse = await fetch(weatherURL);
 
-    // throw desired error for the failed responses
-    if(!weatherResponse.ok){
-        throw new Error (`Something went wrong: ${weatherResponse.status}`);
+        // throw desired error for the failed responses
+        if(!weatherResponse.ok){
+            throw new Error (`Something went wrong: ${weatherResponse.status}`);
+        }
+
+
+        let weatherData = await weatherResponse.json();
+        return weatherData;
     }
-
-
-    let weatherData = await weatherResponse.json();
-    return weatherData;
+    
+    catch(error){
+        console.log(error.message);
+    }
 }
 
 
