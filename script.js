@@ -24,6 +24,57 @@ const weatherConditions = {
 };
 
 
+// get the result object, return the one selected by the user
+function suggestLocations(locations){
+
+
+    const suggestionsCard = document.getElementById("locationSuggestions");
+    const suggestionsList = document.getElementById("suggestionsList");
+    const suggestionsCount = document.getElementById("suggestionsCount");
+
+    // Clear previous results
+    suggestionsList.replaceChildren();
+
+    // Update results count
+    suggestionsCount.textContent = `${locations.length} ${
+        locations.length === 1 ? "place" : "places"
+    }`;
+
+    // Create suggestion elements
+    locations.forEach((location) => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "location-option";
+        option.setAttribute("role", "option");
+
+        option.innerHTML = `
+            <span class="location-option-icon">
+                <i class="fa-solid fa-location-dot"></i>
+            </span>
+
+            <span class="location-option-info">
+                <span class="location-option-name">${location.name}</span>
+                <span class="location-option-details">
+                    ${[location.admin1, location.admin2, location.country]
+                        .filter(Boolean)
+                        .join(" · ")}
+                </span>
+            </span>
+
+            <span class="location-option-arrow">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+        `;
+
+        suggestionsList.appendChild(option);
+    });
+
+    // Display the card
+    suggestionsCard.hidden = false;
+}
+
+
+
 async function  getGeoCode(){
 
     // combine input with the api to build desired URL
@@ -47,13 +98,8 @@ async function  getGeoCode(){
 
 
     // get the latitude and longitude for the use of location
-    const location = geoData.results[0];
-    return {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        cityName: location.name,
-        country: location.country
-    };
+    const allLocations = geoData.results;
+    suggestLocations(allLocations);
 }
 
 
