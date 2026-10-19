@@ -73,6 +73,10 @@ async function suggestLocations(locations){
         locations.length === 1 ? "place" : "places"
     }`;
 
+    if(locations.length===0){
+        return;
+    }
+
     // create and use promise for workflow of returning the selected object
     let resolvedPromise;
 
@@ -187,16 +191,7 @@ async function getWeather(info){
 // function for extracting weather information and display it
 function displayWeather(data, location){
 
-    // getting the weather data needed
-    let feelsLikeTemp = data.current.apparent_temperature;
-    let temperature = data.current.temperature_2m;
-    let humididty = data.current.relative_humidity_2m;
-    let windSpeed = data.current.wind_speed_10m;
-    let pressure = data.current.pressure_msl;
-    let cityName = location.name;
-    let countryName = location.country;
-
-    // targeting elements to be changed 
+     // targeting elements to be changed 
     let feelsLikeElement = document.querySelector("#feelsLike");
     let tempElement = document.querySelector("#temperature");
     let humidityElement = document.querySelector("#humidity");
@@ -205,29 +200,54 @@ function displayWeather(data, location){
     let cityElement = document.querySelector("#cityName");
 
 
-    // assign them respective values
-    feelsLikeElement.textContent = feelsLikeTemp;
-    tempElement.textContent = temperature;
-    humidityElement.textContent = humididty;
-    windSpeedElement.textContent = windSpeed;
-    pressureElement.textContent = pressure;
-    cityElement.textContent = `${cityName}, ${countryName}`;
+    if(data){
+    
+        // getting the weather data needed
+        let feelsLikeTemp = data.current.apparent_temperature;
+        let temperature = data.current.temperature_2m;
+        let humididty = data.current.relative_humidity_2m;
+        let windSpeed = data.current.wind_speed_10m;
+        let pressure = data.current.pressure_msl;
+        let cityName = location.name;
+        let countryName = location.country;
 
-    // Get current weather condition
-    const code = data.current.weather_code;
 
-    const weatherInfo = weatherConditions[code] || {
-        icon: "fa-cloud",
-        description: "Unknown conditions"
-    };
+    
+    
+        // assign them respective values
+        feelsLikeElement.textContent = feelsLikeTemp;
+        tempElement.textContent = temperature;
+        humidityElement.textContent = humididty;
+        windSpeedElement.textContent = windSpeed;
+        pressureElement.textContent = pressure;
+        cityElement.textContent = `${cityName}, ${countryName}`;
 
-    // Update main card's description
-    document.querySelector("#weatherCondition").textContent =
-        weatherInfo.description;
+        // Get current weather condition
+        const code = data.current.weather_code;
 
-    // Update main card's icon
-    document.querySelector("#weatherIcon i").className =
-        `fa-solid ${weatherInfo.icon}`;
+        const weatherInfo = weatherConditions[code] || {
+            icon: "fa-cloud",
+            description: "Unknown conditions"
+        };
+
+        // Update main card's description
+        document.querySelector("#weatherCondition").textContent =
+            weatherInfo.description;
+
+        // Update main card's icon
+        document.querySelector("#weatherIcon i").className =
+            `fa-solid ${weatherInfo.icon}`;
+    }
+
+    else{
+        // assign them respective values
+        feelsLikeElement.textContent = "";
+        tempElement.textContent = "";
+        humidityElement.textContent = "";
+        windSpeedElement.textContent = "";
+        pressureElement.textContent = "";
+        cityElement.textContent = "";
+    }
 }
 
 
