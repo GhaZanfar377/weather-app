@@ -1,3 +1,6 @@
+let searchForm = document.querySelector("#searchForm");
+let message = document.getElementById("message");
+
 // assigning respective icons adn description to be displayed for each weather code
 const weatherConditions = {
     0:  { icon: "fa-sun", description: "Clear sky" },
@@ -24,6 +27,15 @@ const weatherConditions = {
 };
 
 
+// small helper function for getting the information of weather codes
+function getInformation(input){
+    return weatherConditions[input] || {
+        icon: "fa-cloud",
+        description: "Unknown conditions"
+    };
+}
+
+
 // the mechanism of functions calling throught debouncing
 let targetInput = document.getElementById("cityInput");
 let debounceTimer;
@@ -38,13 +50,11 @@ targetInput.addEventListener("input", () => {
             let selectedLocation = await suggestLocations(geoInfo);
 
             let weather = await getWeather(selectedLocation);
-            console.log(selectedLocation);
 
             displayWeather(weather, selectedLocation);
             displayPrediction(weather);
         }
         catch(error){
-
             if (error instanceof TypeError) {
                 message.textContent =
                     "Network error. Please check your internet connection.";
@@ -205,7 +215,7 @@ function displayWeather(data, location){
         // getting the weather data needed
         let feelsLikeTemp = data.current.apparent_temperature;
         let temperature = data.current.temperature_2m;
-        let humididty = data.current.relative_humidity_2m;
+        let humidity = data.current.relative_humidity_2m;
         let windSpeed = data.current.wind_speed_10m;
         let pressure = data.current.pressure_msl;
         let cityName = location.name;
@@ -217,7 +227,7 @@ function displayWeather(data, location){
         // assign them respective values
         feelsLikeElement.textContent = feelsLikeTemp;
         tempElement.textContent = temperature;
-        humidityElement.textContent = humididty;
+        humidityElement.textContent = humidity;
         windSpeedElement.textContent = windSpeed;
         pressureElement.textContent = pressure;
         cityElement.textContent = `${cityName}, ${countryName}`;
@@ -225,10 +235,7 @@ function displayWeather(data, location){
         // Get current weather condition
         const code = data.current.weather_code;
 
-        const weatherInfo = weatherConditions[code] || {
-            icon: "fa-cloud",
-            description: "Unknown conditions"
-        };
+        const weatherInfo = getInformation(code);
 
         // Update main card's description
         document.querySelector("#weatherCondition").textContent =
@@ -270,13 +277,6 @@ function displayPrediction(data){
     );
 
 
-    // getting the icon and description as according to the weathger code, to be displayed in the card
-    let weatherInfo;
-    weatherCodes.forEach( code => {
-        weatherInfo = weatherConditions[code];
-    });
-
-
     // running an iterator to display the extracted values from the data into the weather cards
     let cards = document.querySelectorAll(".forecast-day");
 
@@ -287,10 +287,7 @@ function displayPrediction(data){
         const code = weatherCodes[index];
 
         // Find the matching icon and description
-        const weatherInfo = weatherConditions[code] || {
-            icon: "fa-cloud",
-            description: "Unknown conditions"
-        };
+        const weatherInfo = getInformation(code);
 
          // Put the values into the HTML
         card.querySelector(".forecast-date").textContent = nextDay;
@@ -308,8 +305,6 @@ function displayPrediction(data){
 }
 
 // function call on the form submission
-let searchForm = document.querySelector("#searchForm");
-let message = document.getElementById("message");
 searchForm.addEventListener("submit", async function(event){
     event.preventDefault();    // prevent browser's default auto refresh
 
@@ -319,7 +314,6 @@ searchForm.addEventListener("submit", async function(event){
         let selectedLocation = await suggestLocations(geoInfo);
 
         let weather = await getWeather(selectedLocation);
-        console.log(selectedLocation);
 
         displayWeather(weather, selectedLocation);
         displayPrediction(weather);
