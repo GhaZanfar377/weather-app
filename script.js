@@ -24,8 +24,41 @@ const weatherConditions = {
 };
 
 
+// the mechanism of functions calling throught debouncing
+let targetInput = document.getElementById("cityInput");
+let debounceTimer;
+
+targetInput.addEventListener("input", () => {
+
+    clearTimeout(debounceTimer);
+
+    debounceTimer = setTimeout( async () => {
+         try{
+            const geoInfo = await getGeoCode();
+            let selectedLocation = await suggestLocations(geoInfo);
+
+            let weather = await getWeather(selectedLocation);
+            console.log(selectedLocation);
+
+            displayWeather(weather, selectedLocation);
+            displayPrediction(weather);
+        }
+        catch(error){
+
+            if (error instanceof TypeError) {
+                message.textContent =
+                    "Network error. Please check your internet connection.";
+            } else {
+                message.textContent = error.message;
+            }
+        }
+    },400);
+});
+
+   
+
 // get the result object, return the one selected by the user
-function suggestLocations(locations){
+async function suggestLocations(locations){
 
 
     const suggestionsCard = document.getElementById("locationSuggestions");
@@ -39,6 +72,13 @@ function suggestLocations(locations){
     suggestionsCount.textContent = `${locations.length} ${
         locations.length === 1 ? "place" : "places"
     }`;
+
+    // create and use promise for workflow of returning the selected object
+    let resolvedPromise;
+
+    let myPromise = new Promise((resolve) =>{
+        resolvedPromise = resolve;
+    })
 
     // Create suggestion elements
     locations.forEach((location) => {
@@ -67,10 +107,16 @@ function suggestLocations(locations){
         `;
 
         suggestionsList.appendChild(option);
+
+        option.addEventListener("click", async() =>{
+            resolvedPromise(location);
+            suggestionsCard.hidden = true;
+        })
     });
 
     // Display the card
     suggestionsCard.hidden = false;
+    return myPromise;
 }
 
 
@@ -99,7 +145,7 @@ async function  getGeoCode(){
 
     // get the latitude and longitude for the use of location
     const allLocations = geoData.results;
-    suggestLocations(allLocations);
+    return allLocations;
 }
 
 
@@ -147,7 +193,7 @@ function displayWeather(data, location){
     let humididty = data.current.relative_humidity_2m;
     let windSpeed = data.current.wind_speed_10m;
     let pressure = data.current.pressure_msl;
-    let cityName = location.cityName;
+    let cityName = location.name;
     let countryName = location.country;
 
     // targeting elements to be changed 
@@ -250,9 +296,12 @@ searchForm.addEventListener("submit", async function(event){
 
     try{
         const geoInfo = await getGeoCode();
-        let weather = await getWeather(geoInfo);
+        let selectedLocation = await suggestLocations(geoInfo);
 
-        displayWeather(weather, geoInfo);
+        let weather = await getWeather(selectedLocation);
+        console.log(selectedLocation);
+
+        displayWeather(weather, selectedLocation);
         displayPrediction(weather);
     }
     catch(error){
