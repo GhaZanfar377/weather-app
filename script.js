@@ -1,7 +1,7 @@
 let searchForm = document.querySelector("#searchForm");
 let message = document.getElementById("message");
 let targetInput = document.querySelector("#cityInput");
-let minSearchLength = 2;
+let minSearchLength = 3;
 
 // assigning respective icons adn description to be displayed for each weather code
 const weatherConditions = {
@@ -38,6 +38,42 @@ function getInformation(input){
 }
 
 
+// shows the right error message on the page
+function showError(error){
+    if (error instanceof TypeError) {
+        message.textContent =
+            "Network error. Please check your internet connection.";
+    } else {
+        message.textContent = error.message;
+    }
+}
+
+
+
+// the function to call to get geocode and suggest locations
+async function findPlaces(city){
+    try{
+        const geoInfo = await getGeoCode(city);
+        suggestLocations(geoInfo, findWeather);
+    }
+    catch(error){
+        showError(error);
+    }
+}
+
+
+async function findWeather(location){
+    try{
+        const weather = await getWeather(location);
+        displayWeather(weather, location);
+        displayPrediction(weather);
+    }
+    catch(error){
+        showError(error);
+    }
+
+}
+
 // the mechanism of functions calling throught debouncing
 let debounceTimer;
 
@@ -46,34 +82,20 @@ targetInput.addEventListener("input", () => {
     clearTimeout(debounceTimer);
     let cleanedInput = targetInput.value.trim();
 
-    if(cleanedInput.length > minSearchLength){
-
-        debounceTimer = setTimeout( async () => {
-            try{
-                const geoInfo = await getGeoCode(cleanedInput);
-                let selectedLocation = await suggestLocations(geoInfo);
-
-                let weather = await getWeather(selectedLocation);
-
-                displayWeather(weather, selectedLocation);
-                displayPrediction(weather);
-            }
-            catch(error){
-                if (error instanceof TypeError) {
-                    message.textContent =
-                        "Network error. Please check your internet connection.";
-                } else {
-                    message.textContent = error.message;
-                }
-            }
-        },400);
+    if(cleanedInput.length < minSearchLength){
+        return;
     }
+
+    debounceTimer = setTimeout(() => {
+        findPlaces(cleanedInput);
+    },400);
+    
 });
 
    
 
-// get the result object, return the one selected by the user
-async function suggestLocations(locations){
+// draws the suggestion list, and calls onSelect(location) when the user clicks one
+function suggestLocations(locations, onSelect){
 
 
     const suggestionsCard = document.getElementById("locationSuggestions");
@@ -92,12 +114,6 @@ async function suggestLocations(locations){
         return;
     }
 
-    // create and use promise for workflow of returning the selected object
-    let resolvedPromise;
-
-    let myPromise = new Promise((resolve) =>{
-        resolvedPromise = resolve;
-    })
 
     // Create suggestion elements
     locations.forEach((location) => {
@@ -127,15 +143,14 @@ async function suggestLocations(locations){
 
         suggestionsList.appendChild(option);
 
-        option.addEventListener("click", async() =>{
-            resolvedPromise(location);
+        option.addEventListener("click", () =>{
             suggestionsCard.hidden = true;
+            onSelect(location);
         })
     });
 
     // Display the card
     suggestionsCard.hidden = false;
-    return myPromise;
 }
 
 
@@ -309,28 +324,15 @@ function displayPrediction(data){
 }
 
 // function call on the form submission
-searchForm.addEventListener("submit", async function(event){
+searchForm.addEventListener("submit", function(event){
+
     event.preventDefault();    // prevent browser's default auto refresh
+    clearTimeout(debounceTimer);
 
     let cleanedInput =targetInput.value.trim();
-    if(cleanedInput.length > minSearchLength){
-        try{
-            const geoInfo = await getGeoCode(cleanedInput);
-            let selectedLocation = await suggestLocations(geoInfo);
-
-            let weather = await getWeather(selectedLocation);
-
-            displayWeather(weather, selectedLocation);
-            displayPrediction(weather);
-        }
-        catch(error){
-
-            if (error instanceof TypeError) {
-                message.textContent =
-                    "Network error. Please check your internet connection.";
-            } else {
-                message.textContent = error.message;
-            }
-        }
+    if(cleanedInput.length < minSearchLength){
+        return;
     }
+
+    findPlaces(cleanedInput);
 });
