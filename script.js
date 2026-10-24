@@ -3,6 +3,11 @@ let message = document.getElementById("message");
 let targetInput = document.querySelector("#cityInput");
 let minSearchLength = 3;
 
+// ticket numbers, used to ignore old (stale) answers
+let latestSearchId = 0;
+let latestWeatherId = 0;
+
+
 // assigning respective icons adn description to be displayed for each weather code
 const weatherConditions = {
     0:  { icon: "fa-sun", description: "Clear sky" },
@@ -49,26 +54,62 @@ function showError(error){
 }
 
 
+// defuse the timer AND ignore any search already sent
+function cancelPendingSearch(){
+    clearTimeout(debounceTimer);
+    latestSearchId++;
+}
+
 
 // the function to call to get geocode and suggest locations
 async function findPlaces(city){
+    const myId = ++latestSearchId;
+
     try{
         const geoInfo = await getGeoCode(city);
+
+        // if the response is not not the newest one throw it away
+        if(myId !== latestSearchId){
+            return;
+        }
+
         suggestLocations(geoInfo, findWeather);
     }
     catch(error){
+
+        // previous error must also be cleared
+        if(myId !== latestSearchId){
+            return;
+        }
+
         showError(error);
     }
 }
 
 
 async function findWeather(location){
+
+    cancelPendingSearch();
+    const myWeatherId = ++latestWeatherId;
+
     try{
         const weather = await getWeather(location);
+
+        // if the response is not not the newest one throw it away
+        if(myWeatherId !== latestWeatherId){
+            return;
+        }
+
         displayWeather(weather, location);
         displayPrediction(weather);
     }
     catch(error){
+
+        // previous error must also be cleared
+        if(myWeatherId !== latestWeatherId){
+            return;
+        }
+
         showError(error);
     }
 
@@ -79,7 +120,7 @@ let debounceTimer;
 
 targetInput.addEventListener("input", () => {
 
-    clearTimeout(debounceTimer);
+    cancelPendingSearch();
     let cleanedInput = targetInput.value.trim();
 
     if(cleanedInput.length < minSearchLength){
@@ -327,7 +368,7 @@ function displayPrediction(data){
 searchForm.addEventListener("submit", function(event){
 
     event.preventDefault();    // prevent browser's default auto refresh
-    clearTimeout(debounceTimer);
+    cancelPendingSearch();
 
     let cleanedInput =targetInput.value.trim();
     if(cleanedInput.length < minSearchLength){
