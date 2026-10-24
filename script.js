@@ -1,5 +1,7 @@
 let searchForm = document.querySelector("#searchForm");
 let message = document.getElementById("message");
+let targetInput = document.querySelector("#cityInput");
+let minSearchLength = 2;
 
 // assigning respective icons adn description to be displayed for each weather code
 const weatherConditions = {
@@ -37,32 +39,35 @@ function getInformation(input){
 
 
 // the mechanism of functions calling throught debouncing
-let targetInput = document.getElementById("cityInput");
 let debounceTimer;
 
 targetInput.addEventListener("input", () => {
 
     clearTimeout(debounceTimer);
+    let cleanedInput = targetInput.value.trim();
 
-    debounceTimer = setTimeout( async () => {
-         try{
-            const geoInfo = await getGeoCode();
-            let selectedLocation = await suggestLocations(geoInfo);
+    if(cleanedInput.length > minSearchLength){
 
-            let weather = await getWeather(selectedLocation);
+        debounceTimer = setTimeout( async () => {
+            try{
+                const geoInfo = await getGeoCode(cleanedInput);
+                let selectedLocation = await suggestLocations(geoInfo);
 
-            displayWeather(weather, selectedLocation);
-            displayPrediction(weather);
-        }
-        catch(error){
-            if (error instanceof TypeError) {
-                message.textContent =
-                    "Network error. Please check your internet connection.";
-            } else {
-                message.textContent = error.message;
+                let weather = await getWeather(selectedLocation);
+
+                displayWeather(weather, selectedLocation);
+                displayPrediction(weather);
             }
-        }
-    },400);
+            catch(error){
+                if (error instanceof TypeError) {
+                    message.textContent =
+                        "Network error. Please check your internet connection.";
+                } else {
+                    message.textContent = error.message;
+                }
+            }
+        },400);
+    }
 });
 
    
@@ -135,11 +140,10 @@ async function suggestLocations(locations){
 
 
 
-async function  getGeoCode(){
+async function  getGeoCode(input){
 
     // combine input with the api to build desired URL
-    let userInput = document.querySelector("#cityInput").value;
-    let geoAPI = "https://geocoding-api.open-meteo.com/v1/search?name=".concat(userInput);
+    let geoAPI = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(input)}`;
     
     let geoResponse = await fetch(geoAPI);
 
@@ -308,23 +312,25 @@ function displayPrediction(data){
 searchForm.addEventListener("submit", async function(event){
     event.preventDefault();    // prevent browser's default auto refresh
 
+    let cleanedInput =targetInput.value.trim();
+    if(cleanedInput.length > minSearchLength){
+        try{
+            const geoInfo = await getGeoCode(cleanedInput);
+            let selectedLocation = await suggestLocations(geoInfo);
 
-    try{
-        const geoInfo = await getGeoCode();
-        let selectedLocation = await suggestLocations(geoInfo);
+            let weather = await getWeather(selectedLocation);
 
-        let weather = await getWeather(selectedLocation);
+            displayWeather(weather, selectedLocation);
+            displayPrediction(weather);
+        }
+        catch(error){
 
-        displayWeather(weather, selectedLocation);
-        displayPrediction(weather);
-    }
-    catch(error){
-
-        if (error instanceof TypeError) {
-            message.textContent =
-                "Network error. Please check your internet connection.";
-        } else {
-            message.textContent = error.message;
+            if (error instanceof TypeError) {
+                message.textContent =
+                    "Network error. Please check your internet connection.";
+            } else {
+                message.textContent = error.message;
+            }
         }
     }
 });
