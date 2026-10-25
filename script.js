@@ -3,6 +3,7 @@ let message = document.getElementById("message");
 let targetInput = document.querySelector("#cityInput");
 let minSearchLength = 3;
 let debounceTimer;
+const appElement = document.querySelector(".weather-app");
 
 
 // ticket numbers, used to ignore old (stale) answers
@@ -114,21 +115,22 @@ function makeElement(tag, className, text){
 function resetWeather(){
 
     // main card
-    feelsLikeElement.textContent = "";
-    tempElement.textContent = "";
-    humidityElement.textContent = "";
-    windSpeedElement.textContent = "";
-    pressureElement.textContent = "";
-    cityElement.textContent = "";
-    conditionElement.textContent = "";
+    feelsLikeElement.textContent = "--";
+    tempElement.textContent = "--";
+    humidityElement.textContent = "--";
+    windSpeedElement.textContent = "--";
+    pressureElement.textContent = "--";
+    cityElement.textContent = "Search for a city";
+    conditionElement.textContent = "Type a city name above to begin";
+    appElement.classList.add("is-empty");
     weatherIconElement.className = "fa-solid";
 
     // forecast cards
     forecastCards.forEach((card) => {
-        card.querySelector(".forecast-date").textContent = "";
-        card.querySelector(".forecast-max").textContent = "";
-        card.querySelector(".forecast-min").textContent = "";
-        card.querySelector(".forecast-condition").textContent = "";
+        card.querySelector(".forecast-date").textContent = "--";
+        card.querySelector(".forecast-max").textContent = "--";
+        card.querySelector(".forecast-min").textContent = "--";
+        card.querySelector(".forecast-condition").textContent = "--";
         card.querySelector(".forecast-icon").className = "fa-solid forecast-icon";
     });
 }
@@ -199,6 +201,12 @@ targetInput.addEventListener("input", () => {
     removeError();
     suggestionsCard.hidden = true;
     let cleanedInput = targetInput.value.trim();
+
+    // box fully empty: bring the cards back to the starting look
+    if(cleanedInput.length === 0){
+        latestWeatherId++;  
+        resetWeather();
+    }
 
     if(cleanedInput.length < minSearchLength){
         return;
@@ -335,6 +343,8 @@ async function getWeather(info){
 // function for extracting weather information and display it
 function displayWeather(data, location){
 
+    appElement.classList.remove("is-empty");
+    
     // getting the weather data needed
     let feelsLikeTemp = data.current.apparent_temperature;
     let temperature = data.current.temperature_2m;
@@ -397,8 +407,8 @@ function displayPrediction(data){
 
          // Put the values into the HTML
         card.querySelector(".forecast-date").textContent = nextDay;
-        card.querySelector(".forecast-max").textContent = `${maxTemp}°`;
-        card.querySelector(".forecast-min").textContent = `${minTemp}°`;
+        card.querySelector(".forecast-max").textContent = `${maxTemp}`;
+        card.querySelector(".forecast-min").textContent = `${minTemp}`;
         card.querySelector(".forecast-condition").textContent =
             weatherInfo.description;
 

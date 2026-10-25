@@ -5,14 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather App</title>
+
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <main class="weather-app">
+    <main class="weather-app is-empty">
 
         <!-- Header -->
         <header class="header">
@@ -25,25 +27,69 @@
             </div>
         </header>
 
-        <!-- City Search -->
-        <form class="search-form" id="searchForm">
-            <span class="search-icon">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </span>
+        
+        <!-- City Search and Location Suggestions -->
+        <div class="search-area">
 
-            <input type="text" id="cityInput" placeholder="Enter city name (e.g. Lahore, Karachi...)"
-                aria-label="City name">
+            <form class="search-form" id="searchForm">
+                <span class="search-icon">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
 
-            <button type="submit" id="searchBtn">Search</button>
-        </form>
+                <input
+                    type="text"
+                    id="cityInput"
+                    placeholder="Enter city name (e.g. Lahore, Karachi...)"
+                    aria-label="City name"
+                    autocomplete="off"
+                    required
+                >
+
+                <button type="submit" id="searchBtn">Search</button>
+            </form>
+
+            <!-- Location Suggestions Card -->
+            <section
+                class="location-suggestions"
+                id="locationSuggestions"
+                aria-label="Location suggestions"
+                hidden
+            >
+                <div class="suggestions-header">
+                    <div>
+                        <h2>Choose a location</h2>
+                        <p>Select the correct place for your forecast</p>
+                    </div>
+
+                    <span class="suggestions-count" id="suggestionsCount">
+                        0 places
+                    </span>
+                </div>
+
+                <!-- JavaScript will insert the 10 location buttons here -->
+                <div
+                    class="suggestions-list"
+                    id="suggestionsList"
+                    role="listbox"
+                    aria-label="Matching locations"
+                ></div>
+
+                <div class="suggestions-footer">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Select a location to see its weather</span>
+                </div>
+            </section>
+
+        </div>
+
 
         <!-- Current Weather -->
         <section class="weather-card">
 
             <div class="weather-top">
                 <div>
-                    <h2 id="cityName">Lahore, Pakistan</h2>
-                    <p id="weatherCondition">Mostly Sunny</p>
+                    <h2 id="cityName">Search for a city</h2>
+                    <p id="weatherCondition">Type a city name above to begin</p>
                 </div>
 
                 <p class="date" id="date">Current Weather</p>
@@ -56,10 +102,10 @@
 
                 <div>
                     <h2 class="temperature">
-                        <span id="temperature">28</span><sup>°C</sup>
+                        <span id="temperature">--</span><sup>°C</sup>
                     </h2>
                     <p class="feels-like">
-                        Feels like <span id="feelsLike">30</span>°C
+                        Feels like <span id="feelsLike">--</span>°C
                     </p>
                 </div>
             </div>
@@ -72,7 +118,7 @@
                         <i class="fa-solid fa-droplet"></i>
                     </span>
                     <p>Humidity</p>
-                    <h3><span id="humidity">52</span>%</h3>
+                    <h3><span id="humidity">--</span>%</h3>
                 </div>
 
                 <div class="detail">
@@ -80,7 +126,7 @@
                         <i class="fa-solid fa-wind"></i>
                     </span>
                     <p>Wind Speed</p>
-                    <h3><span id="windSpeed">12</span> km/h</h3>
+                    <h3><span id="windSpeed">--</span> km/h</h3>
                 </div>
 
                 <div class="detail">
@@ -88,73 +134,131 @@
                         <i class="fa-solid fa-temperature-half"></i>
                     </span>
                     <p>Pressure</p>
-                    <h3><span id="pressure">1012</span> hPa</h3>
+                    <h3><span id="pressure">--</span> hPa</h3>
                 </div>
 
             </div>
         </section>
 
-        <!-- Five-Day Forecast: visual placeholder for now -->
+        <!-- Five-Day Forecast -->
         <section class="forecast-section">
+
             <div class="forecast-heading">
                 <h2>5-Day Forecast</h2>
-                <p>Coming soon</p>
+                <p>Weather for the next five days</p>
             </div>
 
             <div class="forecast-list">
 
+                <!-- Forecast Card 1 -->
                 <div class="forecast-day">
-                    <p>Tue</p>
+                    <p class="forecast-date">--</p>
+
                     <span>
-                        <i class="fa-solid fa-sun"></i>
+                        <i class="fa-solid fa-cloud-sun forecast-icon"
+                           aria-hidden="true"></i>
                     </span>
-                    <h3>32°</h3>
-                    <small>Sunny</small>
+
+                    <h3>
+                        <span class="forecast-max">--</span>°C
+                    </h3>
+
+                    <p class="forecast-low">
+                        Low: <span class="forecast-min">--</span>°C
+                    </p>
+
+                    <small class="forecast-condition">--</small>
                 </div>
 
+                <!-- Forecast Card 2 -->
                 <div class="forecast-day">
-                    <p>Wed</p>
+                    <p class="forecast-date">--</p>
+
                     <span>
-                        <i class="fa-solid fa-cloud-sun"></i>
+                        <i class="fa-solid fa-cloud-sun forecast-icon"
+                           aria-hidden="true"></i>
                     </span>
-                    <h3>31°</h3>
-                    <small>Partly cloudy</small>
+
+                    <h3>
+                        <span class="forecast-max">--</span>°C
+                    </h3>
+
+                    <p class="forecast-low">
+                        Low: <span class="forecast-min">--</span>°C
+                    </p>
+
+                    <small class="forecast-condition">--</small>
                 </div>
 
+                <!-- Forecast Card 3 -->
                 <div class="forecast-day">
-                    <p>Thu</p>
+                    <p class="forecast-date">--</p>
+
                     <span>
-                        <i class="fa-solid fa-cloud"></i>
+                        <i class="fa-solid fa-cloud-sun forecast-icon"
+                           aria-hidden="true"></i>
                     </span>
-                    <h3>29°</h3>
-                    <small>Cloudy</small>
+
+                    <h3>
+                        <span class="forecast-max">--</span>°C
+                    </h3>
+
+                    <p class="forecast-low">
+                        Low: <span class="forecast-min">--</span>°C
+                    </p>
+
+                    <small class="forecast-condition">--</small>
                 </div>
 
+                <!-- Forecast Card 4 -->
                 <div class="forecast-day">
-                    <p>Fri</p>
+                    <p class="forecast-date">--</p>
+
                     <span>
-                        <i class="fa-solid fa-sun"></i>
+                        <i class="fa-solid fa-cloud-sun forecast-icon"
+                           aria-hidden="true"></i>
                     </span>
-                    <h3>30°</h3>
-                    <small>Sunny</small>
+
+                    <h3>
+                        <span class="forecast-max">--</span>°C
+                    </h3>
+
+                    <p class="forecast-low">
+                        Low: <span class="forecast-min">--</span>°C
+                    </p>
+
+                    <small class="forecast-condition">--</small>
                 </div>
 
+                <!-- Forecast Card 5 -->
                 <div class="forecast-day">
-                    <p>Sat</p>
+                    <p class="forecast-date">--</p>
+
                     <span>
-                        <i class="fa-solid fa-cloud-rain"></i>
+                        <i class="fa-solid fa-cloud-sun forecast-icon"
+                           aria-hidden="true"></i>
                     </span>
-                    <h3>28°</h3>
-                    <small>Showers</small>
+
+                    <h3>
+                        <span class="forecast-max">--</span>°C
+                    </h3>
+
+                    <p class="forecast-low">
+                        Low: <span class="forecast-min">--</span>°C
+                    </p>
+
+                    <small class="forecast-condition">--</small>
                 </div>
 
             </div>
         </section>
 
+        <!-- Status and Error Messages -->
         <p class="message" id="message" role="status"></p>
 
     </main>
 
-</body>
+    <script src="script.js"></script>
 
+</body>
 </html>
