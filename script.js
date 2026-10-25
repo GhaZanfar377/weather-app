@@ -2,6 +2,8 @@ let searchForm = document.querySelector("#searchForm");
 let message = document.getElementById("message");
 let targetInput = document.querySelector("#cityInput");
 let minSearchLength = 3;
+let debounceTimer;
+
 
 // ticket numbers, used to ignore old (stale) answers
 let latestSearchId = 0;
@@ -21,7 +23,7 @@ const weatherIconElement = document.querySelector("#weatherIcon i");
 const forecastCards = document.querySelectorAll(".forecast-day");
 
 
-// assigning respective icons adn description to be displayed for each weather code
+// assigning respective icons and description to be displayed for each weather code
 const weatherConditions = {
     0:  { icon: "fa-sun", description: "Clear sky" },
     1:  { icon: "fa-sun", description: "Mainly clear" },
@@ -32,15 +34,22 @@ const weatherConditions = {
     51: { icon: "fa-cloud-rain", description: "Light drizzle" },
     53: { icon: "fa-cloud-rain", description: "Drizzle" },
     55: { icon: "fa-cloud-rain", description: "Heavy drizzle" },
+    56: { icon: "fa-cloud-rain", description: "Light freezing drizzle" },
+    57: { icon: "fa-cloud-rain", description: "Heavy freezing drizzle" },
     61: { icon: "fa-cloud-rain", description: "Light rain" },
     63: { icon: "fa-cloud-showers-heavy", description: "Rain" },
     65: { icon: "fa-cloud-showers-heavy", description: "Heavy rain" },
+    66: { icon: "fa-cloud-rain", description: "Light freezing rain" },
+    67: { icon: "fa-cloud-showers-heavy", description: "Heavy freezing rain" },
     71: { icon: "fa-snowflake", description: "Light snow" },
     73: { icon: "fa-snowflake", description: "Snow" },
     75: { icon: "fa-snowflake", description: "Heavy snow" },
+    77: { icon: "fa-snowflake", description: "Snow grains" },
     80: { icon: "fa-cloud-showers-heavy", description: "Rain showers" },
     81: { icon: "fa-cloud-showers-heavy", description: "Rain showers" },
     82: { icon: "fa-cloud-showers-heavy", description: "Heavy showers" },
+    85: { icon: "fa-snowflake", description: "Light snow showers" },
+    86: { icon: "fa-snowflake", description: "Heavy snow showers" },
     95: { icon: "fa-cloud-bolt", description: "Thunderstorm" },
     96: { icon: "fa-cloud-bolt", description: "Thunderstorm with hail" },
     99: { icon: "fa-cloud-bolt", description: "Thunderstorm with hail" }
@@ -86,6 +95,21 @@ function cancelPendingSearch(){
 }
 
 
+
+// builds one element: tag, class name, and optional plain text (never HTML)
+function makeElement(tag, className, text){
+    const element = document.createElement(tag);
+    element.className = className;
+
+    if(text !== undefined){
+        element.textContent = text;
+    }
+
+    return element;
+}
+
+
+
 // clears everything the weather cards show (mirrors displayWeather + displayPrediction)
 function resetWeather(){
 
@@ -117,7 +141,7 @@ async function findPlaces(city){
     try{
         const geoInfo = await getGeoCode(city);
 
-        // if the response is not not the newest one throw it away
+        // if a newer request exists, throw this answer away
         if(myId !== latestSearchId){
             return;
         }
@@ -126,7 +150,7 @@ async function findPlaces(city){
     }
     catch(error){
 
-        // previous error must also be cleared
+        // old errors must be ignored too
         if(myId !== latestSearchId){
             return;
         }
@@ -167,8 +191,7 @@ async function findWeather(location){
 
 }
 
-// the mechanism of functions calling throught debouncing
-let debounceTimer;
+// the mechanism of functions calling through debouncing
 
 targetInput.addEventListener("input", () => {
 
@@ -211,24 +234,30 @@ function suggestLocations(locations, onSelect){
         option.className = "location-option";
         option.setAttribute("role", "option");
 
-        option.innerHTML = `
-            <span class="location-option-icon">
-                <i class="fa-solid fa-location-dot"></i>
-            </span>
+                // icon part (fixed, our own markup)
+        const iconBox = makeElement("span", "location-option-icon");
+        iconBox.append(makeElement("i", "fa-solid fa-location-dot"));
 
-            <span class="location-option-info">
-                <span class="location-option-name">${location.name}</span>
-                <span class="location-option-details">
-                    ${[location.admin1, location.admin2, location.country]
-                        .filter(Boolean)
-                        .join(" · ")}
-                </span>
-            </span>
+        // info part (DATA from the API, so plain text only)
+        const nameText = makeElement("span", "location-option-name", location.name);
+        const detailsText = makeElement(
+            "span",
+            "location-option-details",
+            [location.admin1, location.admin2, location.country]
+                .filter(Boolean)
+                .join(" · ")
+        );
 
-            <span class="location-option-arrow">
-                <i class="fa-solid fa-chevron-right"></i>
-            </span>
-        `;
+
+        const infoBox = makeElement("span", "location-option-info");
+        infoBox.append(nameText, detailsText);
+
+        // arrow part (fixed, our own markup)
+        const arrowBox = makeElement("span", "location-option-arrow");
+        arrowBox.append(makeElement("i", "fa-solid fa-chevron-right"));
+
+        // put the three parts inside the button
+        option.append(iconBox, infoBox, arrowBox);
 
         suggestionsList.appendChild(option);
 
@@ -236,6 +265,7 @@ function suggestLocations(locations, onSelect){
             suggestionsCard.hidden = true;
             onSelect(location);
         })
+
     });
 
     // Display the card
@@ -274,10 +304,6 @@ async function  getGeoCode(input){
 // asynchronous function for getting the weather from latitude and longitude
 async function getWeather(info){
 
-    if(info === undefined){
-        throw new Error("City not Found");
-    }
-
     let latitude = info.latitude;
     let longitude = info.longitude;
     let weatherAPI = "https://api.open-meteo.com/v1/forecast?";
@@ -285,9 +311,9 @@ async function getWeather(info){
                         "latitude=", latitude,
                         "&longitude=", longitude,
                         "&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,pressure_msl,is_day",
-                        "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+                        "&daily=weather_code,temperature_2m_max,temperature_2m_min",
                         "&timezone=auto",
-                        "&forecast_days=7"
+                        "&forecast_days=6"
                     );
 
     let weatherResponse = await safeFetch(weatherURL);
@@ -309,36 +335,33 @@ async function getWeather(info){
 // function for extracting weather information and display it
 function displayWeather(data, location){
 
-    if(data){
-    
-        // getting the weather data needed
-        let feelsLikeTemp = data.current.apparent_temperature;
-        let temperature = data.current.temperature_2m;
-        let humidity = data.current.relative_humidity_2m;
-        let windSpeed = data.current.wind_speed_10m;
-        let pressure = data.current.pressure_msl;
-        let cityName = location.name;
-        let countryName = location.country;
+    // getting the weather data needed
+    let feelsLikeTemp = data.current.apparent_temperature;
+    let temperature = data.current.temperature_2m;
+    let humidity = data.current.relative_humidity_2m;
+    let windSpeed = data.current.wind_speed_10m;
+    let pressure = data.current.pressure_msl;
+    let cityName = location.name;
+    let countryName = location.country;
+    let admin1 = location.admin1;
 
 
-        // assign them respective values
-        feelsLikeElement.textContent = feelsLikeTemp;
-        tempElement.textContent = temperature;
-        humidityElement.textContent = humidity;
-        windSpeedElement.textContent = windSpeed;
-        pressureElement.textContent = pressure;
-        cityElement.textContent = `${cityName}, ${countryName}`;
+    // assign them respective values
+    feelsLikeElement.textContent = feelsLikeTemp;
+    tempElement.textContent = temperature;
+    humidityElement.textContent = humidity;
+    windSpeedElement.textContent = windSpeed;
+    pressureElement.textContent = pressure;
+    cityElement.textContent = [cityName, admin1, countryName].filter(Boolean).join(", ");
 
-        // Get current weather condition
-        const code = data.current.weather_code;
+    // Get current weather condition
+    const code = data.current.weather_code;
 
-        const weatherInfo = getInformation(code);
+    const weatherInfo = getInformation(code);
 
-        // Update main card's description and icon
-        conditionElement.textContent = weatherInfo.description;
-        weatherIconElement.className = `fa-solid ${weatherInfo.icon}`;
-    }
-
+    // Update main card's description and icon
+    conditionElement.textContent = weatherInfo.description;
+    weatherIconElement.className = `fa-solid ${weatherInfo.icon}`;
 }
 
 
