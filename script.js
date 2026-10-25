@@ -7,6 +7,19 @@ let minSearchLength = 3;
 let latestSearchId = 0;
 let latestWeatherId = 0;
 
+const suggestionsCard = document.getElementById("locationSuggestions");
+
+// elements of the weather cards 
+const feelsLikeElement = document.querySelector("#feelsLike");
+const tempElement = document.querySelector("#temperature");
+const humidityElement = document.querySelector("#humidity");
+const windSpeedElement = document.querySelector("#windSpeed");
+const pressureElement = document.querySelector("#pressure");
+const cityElement = document.querySelector("#cityName");
+const conditionElement = document.querySelector("#weatherCondition");
+const weatherIconElement = document.querySelector("#weatherIcon i");
+const forecastCards = document.querySelectorAll(".forecast-day");
+
 
 // assigning respective icons adn description to be displayed for each weather code
 const weatherConditions = {
@@ -45,12 +58,24 @@ function getInformation(input){
 
 // shows the right error message on the page
 function showError(error){
-    if (error instanceof TypeError) {
-        message.textContent =
-            "Network error. Please check your internet connection.";
-    } else {
-        message.textContent = error.message;
+    message.textContent = error.message;
+}
+
+
+// fetch that gives a clear message when the network is down
+async function safeFetch(url){
+    try{
+        return await fetch(url);
     }
+    catch(error){
+        throw new Error("Network error. Please check your internet connection.");
+    }
+}
+
+
+// removes the previous error 
+function removeError(){
+    message.textContent = "";
 }
 
 
@@ -61,10 +86,34 @@ function cancelPendingSearch(){
 }
 
 
+// clears everything the weather cards show (mirrors displayWeather + displayPrediction)
+function resetWeather(){
+
+    // main card
+    feelsLikeElement.textContent = "";
+    tempElement.textContent = "";
+    humidityElement.textContent = "";
+    windSpeedElement.textContent = "";
+    pressureElement.textContent = "";
+    cityElement.textContent = "";
+    conditionElement.textContent = "";
+    weatherIconElement.className = "fa-solid";
+
+    // forecast cards
+    forecastCards.forEach((card) => {
+        card.querySelector(".forecast-date").textContent = "";
+        card.querySelector(".forecast-max").textContent = "";
+        card.querySelector(".forecast-min").textContent = "";
+        card.querySelector(".forecast-condition").textContent = "";
+        card.querySelector(".forecast-icon").className = "fa-solid forecast-icon";
+    });
+}
+
 // the function to call to get geocode and suggest locations
 async function findPlaces(city){
     const myId = ++latestSearchId;
 
+    removeError();
     try{
         const geoInfo = await getGeoCode(city);
 
@@ -82,6 +131,7 @@ async function findPlaces(city){
             return;
         }
 
+        suggestionsCard.hidden = true;
         showError(error);
     }
 }
@@ -90,6 +140,7 @@ async function findPlaces(city){
 async function findWeather(location){
 
     cancelPendingSearch();
+    removeError();
     const myWeatherId = ++latestWeatherId;
 
     try{
@@ -110,6 +161,7 @@ async function findWeather(location){
             return;
         }
 
+        resetWeather();
         showError(error);
     }
 
@@ -121,6 +173,8 @@ let debounceTimer;
 targetInput.addEventListener("input", () => {
 
     cancelPendingSearch();
+    removeError();
+    suggestionsCard.hidden = true;
     let cleanedInput = targetInput.value.trim();
 
     if(cleanedInput.length < minSearchLength){
@@ -139,7 +193,6 @@ targetInput.addEventListener("input", () => {
 function suggestLocations(locations, onSelect){
 
 
-    const suggestionsCard = document.getElementById("locationSuggestions");
     const suggestionsList = document.getElementById("suggestionsList");
     const suggestionsCount = document.getElementById("suggestionsCount");
 
@@ -150,11 +203,6 @@ function suggestLocations(locations, onSelect){
     suggestionsCount.textContent = `${locations.length} ${
         locations.length === 1 ? "place" : "places"
     }`;
-
-    if(locations.length===0){
-        return;
-    }
-
 
     // Create suggestion elements
     locations.forEach((location) => {
@@ -201,7 +249,7 @@ async function  getGeoCode(input){
     // combine input with the api to build desired URL
     let geoAPI = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(input)}`;
     
-    let geoResponse = await fetch(geoAPI);
+    let geoResponse = await safeFetch(geoAPI);
 
     // throw desired error for the failed responses
     if(!geoResponse.ok){
@@ -212,7 +260,7 @@ async function  getGeoCode(input){
     // convert fetched data to usable format
     let geoData = await geoResponse.json();
 
-    if(geoData.results === undefined){
+    if(!geoData.results || geoData.results.length === 0){
         throw new Error("City not found");
     }
 
@@ -242,7 +290,7 @@ async function getWeather(info){
                         "&forecast_days=7"
                     );
 
-    let weatherResponse = await fetch(weatherURL);
+    let weatherResponse = await safeFetch(weatherURL);
 
     // throw desired error for the failed responses
     if(!weatherResponse.ok){
@@ -261,15 +309,6 @@ async function getWeather(info){
 // function for extracting weather information and display it
 function displayWeather(data, location){
 
-     // targeting elements to be changed 
-    let feelsLikeElement = document.querySelector("#feelsLike");
-    let tempElement = document.querySelector("#temperature");
-    let humidityElement = document.querySelector("#humidity");
-    let windSpeedElement = document.querySelector("#windSpeed");
-    let pressureElement = document.querySelector("#pressure");
-    let cityElement = document.querySelector("#cityName");
-
-
     if(data){
     
         // getting the weather data needed
@@ -282,8 +321,6 @@ function displayWeather(data, location){
         let countryName = location.country;
 
 
-    
-    
         // assign them respective values
         feelsLikeElement.textContent = feelsLikeTemp;
         tempElement.textContent = temperature;
@@ -297,24 +334,11 @@ function displayWeather(data, location){
 
         const weatherInfo = getInformation(code);
 
-        // Update main card's description
-        document.querySelector("#weatherCondition").textContent =
-            weatherInfo.description;
-
-        // Update main card's icon
-        document.querySelector("#weatherIcon i").className =
-            `fa-solid ${weatherInfo.icon}`;
+        // Update main card's description and icon
+        conditionElement.textContent = weatherInfo.description;
+        weatherIconElement.className = `fa-solid ${weatherInfo.icon}`;
     }
 
-    else{
-        // assign them respective values
-        feelsLikeElement.textContent = "";
-        tempElement.textContent = "";
-        humidityElement.textContent = "";
-        windSpeedElement.textContent = "";
-        pressureElement.textContent = "";
-        cityElement.textContent = "";
-    }
 }
 
 
@@ -338,9 +362,8 @@ function displayPrediction(data){
 
 
     // running an iterator to display the extracted values from the data into the weather cards
-    let cards = document.querySelectorAll(".forecast-day");
 
-    cards.forEach((card, index) => {
+    forecastCards.forEach((card, index) => {
         const maxTemp = maxWeatherArray[index];
         const minTemp = minWeatherArray[index];
         const nextDay = nextDays[index];
